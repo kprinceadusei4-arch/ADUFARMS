@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADUFARMS Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: #1f2937;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 35px;
+        }
+
+        .menu a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 14px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+
+        .menu a:hover {
+            background: #374151;
+        }
+
+        .logout {
+            margin-top: 30px;
+        }
+
+        .main {
+            margin-left: 240px;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .user {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .card .value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .module {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #222;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .module:hover {
+            transform: translateY(-2px);
+        }
+
+        .module h2 {
+            margin-top: 0;
+        }
+
+        @media (max-width: 900px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modules {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+
+        <div class="logo">
+            ADUFARMS
+        </div>
+
+        <div class="menu">
+            <a href="/dashboard">🏠 Dashboard</a>
+            <a href="#">📦 Purchase</a>
+            <a href="#">👥 Customer / Sales</a>
+            <a href="#">💰 Payment Tracking</a>
+            <a href="#">🧾 Invoice</a>
+            <a href="#">🔍 Search</a>
+            <a href="#">📊 Reports</a>
+
+            <div class="logout">
+                <a href="/logout">🚪 Logout</a>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="main">
+
+        <div class="header">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>ADUFARMS Maize Distribution Management System</p>
+            </div>
+
+            <div class="user">
+                👤 {{ session.get("username") }}
+            </div>
+
+        </div>
+
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>MAIZE STOCK</h3>
+                <div class="value">0 Bags</div>
+            </div>
+
+            <div class="card">
+                <h3>TOTAL PURCHASES</h3>
+                <div class="value">GH₵ 0.00</div>
+            </div>
+
+            <div class="card">
+                <h3>TOTAL SALES</h3>
+                <div class="value">GH₵ 0.00</div>
+            </div>
+
+            <div class="card">
+                <h3>OUTSTANDING</h3>
+                <div class="value">GH₵ 0.00</div>
+            </div>
+
+        </div>
+
+
+        <h2>ADUFARMS Modules</h2>
+
+        <div class="modules">
+
+            <a class="module" href="#">
+                <h2>📦 Purchase</h2>
+                <p>Record maize purchases from suppliers and track landed costs.</p>
+            </a>
+
+            <a class="module" href="#">
+                <h2>👥 Customer / Sales</h2>
+                <p>Manage customers and record maize sales.</p>
+            </a>
+
+            <a class="module" href="#">
+                <h2>💰 Payments</h2>
+                <p>Track customer and supplier payments and outstanding balances.</p>
+            </a>
+
+            <a class="module" href="#">
+                <h2>🧾 Invoice</h2>
+                <p>Create and manage customer invoices.</p>
+            </a>
+
+            <a class="module" href="#">
+                <h2>🔍 Search</h2>
+                <p>Search customers, purchases, sales and invoices.</p>
+            </a>
+
+            <a class="module" href="#">
+                <h2>📊 Reports</h2>
+                <p>View sales, purchases, stock and profit reports.</p>
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
