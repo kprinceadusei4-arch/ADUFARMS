@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Customer / Sales – ADUFARMS{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between"><h2>CUSTOMER / SALES</h2><span class="badge bg-dark fs-6 align-self-center">AVAILABLE STOCK: {{ "{:,.2f}".format(stock) }} KG</span></div>
+<div class="card my-3"><div class="card-body"><form method="post" class="row g-3">
+<div class="col-md-2"><label class="form-label">Date</label><input type="date" name="sale_date" value="{{today}}" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label">Customer Name</label><input name="customer_name" class="form-control" required></div>
+<div class="col-md-2"><label class="form-label">Customer Phone</label><input name="customer_phone" class="form-control"></div>
+<div class="col-md-2"><label class="form-label">Quantity Sold (KG)</label><input type="number" min="0.01" step="0.01" name="quantity_kg" class="form-control" required></div>
+<div class="col-md-2"><label class="form-label">Selling Price / KG</label><input type="number" min="0" step="0.01" name="selling_price_kg" class="form-control" required></div>
+<div class="col-12"><button class="btn btn-primary">CREATE SALE</button></div>
+</form></div></div>
+<div class="card"><div class="card-body"><h5>Recent Sales</h5><div class="table-responsive"><table class="table table-sm">
+<thead><tr><th>Transaction ID</th><th>Date</th><th>Customer</th><th>Phone</th><th>KG</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>{% for r in rows %}{% set balance=r.total_sale-r.paid %}<tr class="{% if r.deleted %}table-secondary text-muted{% endif %}"><td><a href="{{url_for('transaction_history',transaction_id=r.transaction_id)}}">{{r.transaction_id}}</a>{% if r.deleted %}<span class="badge bg-secondary ms-1">DELETED</span>{% endif %}</td><td>{{r.sale_date|pretty_date}}</td><td>{{r.customer_name}}</td><td>{{r.phone}}</td><td>{{"{:,.2f}".format(r.quantity_kg)}}</td><td>{{r.total_sale|money}}</td><td>{{r.paid|money}}</td><td>{{balance|money}}</td><td>{% if balance<=0.005 %}<span class="badge bg-success">PAID</span>{% elif r.paid>0 %}<span class="badge bg-warning text-dark">PART PAYMENT</span>{% else %}<span class="badge bg-danger">UNPAID</span>{% endif %}</td><td><a class="btn btn-sm btn-outline-primary" href="{{url_for('edit_sale',sale_id=r.id)}}">Edit</a> <form class="d-inline" method="post" action="{{url_for('delete_record_route',table='sales',record_id=r.id)}}" onsubmit="return confirm('Confirm sale deletion?');"><button class="btn btn-sm btn-outline-danger">{% if session.get('role') == 'ADMIN' %}Hard delete{% else %}Delete{% endif %}</button></form>{% if r.deleted and session.get('role') == 'ADMIN' %} <form class="d-inline" method="post" action="{{url_for('restore_record',table='sales',record_id=r.id)}}" onsubmit="return confirm('Restore this sale?');"><button class="btn btn-sm btn-outline-success">Restore</button></form>{% endif %}</td></tr>{% endfor %}</tbody>
+</table></div></div></div>
+{% endblock %}

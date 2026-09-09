@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Payment Tracking – ADUFARMS{% endblock %}
+{% block content %}
+<h2>PAYMENT TRACKING</h2>
+<div class="card my-3"><div class="card-body"><form method="post" class="row g-3">
+<div class="col-md-3"><label class="form-label">Customer Transaction ID</label><input name="transaction_id" class="form-control" placeholder="ADU-YYYYMMDD-0001" required></div>
+<div class="col-md-2"><label class="form-label">Payment Date</label><input type="date" name="payment_date" value="{{today}}" class="form-control" required></div>
+<div class="col-md-2"><label class="form-label">Amount Paid</label><input type="number" min="0.01" step="0.01" name="amount" class="form-control" required></div>
+<div class="col-md-2"><label class="form-label">Payment Method</label><select name="payment_method" class="form-select" required><option>Cash</option><option>Mobile Money</option><option>Bank Transfer</option><option>Cheque</option><option>Other</option></select></div>
+<div class="col-md-3"><label class="form-label">Payment Reference</label><input name="payment_reference" class="form-control"></div>
+<div class="col-12"><button class="btn btn-primary">RECORD PAYMENT</button></div>
+</form></div></div>
+<div class="card"><div class="card-body"><h5>Payment History</h5><div class="table-responsive"><table class="table table-sm">
+<thead><tr><th>Transaction ID</th><th>Customer</th><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th><th>Staff</th><th>Actions</th></tr></thead>
+<tbody>{% for r in rows %}<tr class="{% if r.deleted %}table-secondary text-muted{% endif %}"><td><a href="{{url_for('transaction_history',transaction_id=r.transaction_id)}}">{{r.transaction_id}}</a>{% if r.deleted %}<span class="badge bg-secondary ms-1">DELETED</span>{% endif %}</td><td>{{r.customer_name}}</td><td>{{r.payment_date|pretty_date}}</td><td>{{r.amount|money}}</td><td>{{r.payment_method}}</td><td>{{r.payment_reference}}</td><td>{{r.staff_user}}</td><td><a class="btn btn-sm btn-outline-primary" href="{{url_for('edit_payment',payment_id=r.id)}}">Edit</a> <form class="d-inline" method="post" action="{{url_for('delete_record_route',table='payments',record_id=r.id)}}" onsubmit="return confirm('{% if session.get('role') == 'ADMIN' %}Permanently delete{% else %}Delete{% endif %} this payment?');"><button class="btn btn-sm btn-outline-danger">{% if session.get('role') == 'ADMIN' %}Hard delete{% else %}Delete{% endif %}</button></form>{% if r.deleted and session.get('role') == 'ADMIN' %} <form class="d-inline" method="post" action="{{url_for('restore_record',table='payments',record_id=r.id)}}" onsubmit="return confirm('Restore this payment?');"><button class="btn btn-sm btn-outline-success">Restore</button></form>{% endif %}</td></tr>{% else %}<tr><td colspan="8">No payments recorded.</td></tr>{% endfor %}</tbody>
+</table></div></div></div>
+{% endblock %}

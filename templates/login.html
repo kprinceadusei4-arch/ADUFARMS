@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Login – ADUFARMS{% endblock %}
+{% block public %}
+<div class="login-wrap">
+<div class="login-card">
+<div class="text-center mb-4"><div class="brand">ADUFARMS</div><div class="text-muted">MAIZE DISTRIBUTION MANAGEMENT SYSTEM</div></div>
+<form method="post">
+<label class="form-label">Username</label><input class="form-control mb-3" name="username" required autofocus>
+<label class="form-label">Password</label><input class="form-control mb-3" name="password" type="password" required>
+<button class="btn btn-primary w-100">LOGIN</button>
+</form>
+<div class="small text-muted mt-3">Default admin: <b>admin</b> / <b>admin123</b></div>
+</div></div>
+{% endblock %}

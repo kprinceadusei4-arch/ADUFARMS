@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Invoice – ADUFARMS{% endblock %}
+{% block content %}
+<h2>INVOICE</h2>
+<form method="get" class="row g-2 my-3"><div class="col-md-5"><input name="transaction_id" value="{{info.transaction_id if info else request.args.get('transaction_id','')}}" class="form-control" placeholder="Enter Customer Transaction ID / Invoice Number"></div><div class="col-auto"><button class="btn btn-primary">LOAD INVOICE</button></div></form>
+{% if info %}
+<div class="invoice-paper">
+<div class="d-flex justify-content-between"><div><h1>ADUFARMS</h1><div>MAIZE DISTRIBUTION</div></div><div class="text-end"><b>INVOICE</b><br>{{info.transaction_id}}<br>{{info.sale_date|pretty_date}}</div></div>
+<hr>
+<div class="row"><div class="col-6"><b>Customer</b><br>{{info.customer_name}}<br>{{info.customer_phone or "-"}}</div></div>
+<table class="table mt-4"><thead><tr><th>Description</th><th class="text-end">Quantity (KG)</th><th class="text-end">Price/KG</th><th class="text-end">Amount</th></tr></thead>
+<tbody><tr><td>Maize</td><td class="text-end">{{"{:,.2f}".format(info.quantity_kg)}}</td><td class="text-end">{{info.selling_price_kg|money}}</td><td class="text-end">{{info.total_sale|money}}</td></tr></tbody></table>
+<div class="row justify-content-end"><div class="col-md-5"><table class="table"><tr><th>TOTAL</th><td class="text-end">{{info.total_sale|money}}</td></tr><tr><th>TOTAL PAID</th><td class="text-end">{{info.total_paid|money}}</td></tr><tr><th>BALANCE</th><td class="text-end">{{info.balance|money}}</td></tr><tr><th>PAYMENT STATUS</th><td class="text-end"><b>{{info.status}}</b></td></tr></table></div></div>
+<div class="text-center mt-5">Thank you for doing business with ADUFARMS.</div>
+<div class="text-center mt-3 no-print"><a class="btn btn-dark" href="{{url_for('invoice_pdf',transaction_id=info.transaction_id)}}">EXPORT PDF</a><button onclick="window.print()" class="btn btn-outline-primary">PRINT INVOICE</button></div>
+</div>
+{% endif %}
+{% endblock %}

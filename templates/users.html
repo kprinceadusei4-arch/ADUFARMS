@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Users – ADUFARMS{% endblock %}
+{% block content %}
+<h2>USER MANAGEMENT</h2>
+<div class="card my-3"><div class="card-body"><form method="post" class="row g-3">
+<div class="col-md-3"><label class="form-label">Username</label><input name="username" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label">Full Name</label><input name="full_name" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label">Password</label><input name="password" type="password" class="form-control" required></div>
+<div class="col-md-2"><label class="form-label">Role</label><select name="role" class="form-select"><option>STAFF</option><option>ADMIN</option></select></div>
+<div class="col-md-1 d-flex align-items-end"><button class="btn btn-primary">ADD</button></div>
+</form></div></div>
+<table class="table"><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{r.username}}</td><td>{{r.full_name}}</td><td>{{r.role}}</td><td>{{"ACTIVE" if r.active else "INACTIVE"}}</td><td><a class="btn btn-sm btn-outline-primary" href="{{url_for('edit_user',user_id=r.id)}}">Edit</a> {% if r.username!='admin' %}<form class="d-inline" method="post" action="{{url_for('toggle_user',user_id=r.id)}}" onsubmit="return confirm('Are you sure you want to deactivate or restore this user?');"><button class="btn btn-sm btn-outline-secondary">Soft delete / restore</button></form> <form class="d-inline" method="post" action="{{url_for('delete_user',user_id=r.id)}}" onsubmit="return confirm('Permanently delete this user? This cannot be undone.');"><button class="btn btn-sm btn-outline-danger">Hard delete</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}

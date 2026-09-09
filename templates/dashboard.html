@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – ADUFARMS{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h2>REPORT / DASHBOARD</h2><div class="text-muted">Maize distribution overview</div></div></div>
+<div class="row g-3">
+{% for label,value,cls in [
+("Total Maize Purchased", stats.purchased|string+" KG",""),
+("Total Maize Sold", stats.sold|string+" KG",""),
+("Current Maize Stock", stats.stock|string+" KG",""),
+("Total Sales", stats.sales|money,""),
+("Payments Received", stats.payments|money,""),
+("Outstanding", stats.outstanding|money,""),
+("Estimated Profit", stats.profit|money,""),
+("Customers", stats.customers,"")
+] %}
+<div class="col-6 col-md-3"><div class="card stat-card h-100"><div class="card-body"><div class="stat-label">{{label}}</div><div class="stat-value">{{value}}</div></div></div></div>
+{% endfor %}
+</div>
+<div class="row g-3 mt-1">
+<div class="col-lg-6"><div class="card"><div class="card-body"><h5>Payment Status</h5>
+<div class="row text-center">
+<div class="col"><div class="big-number">{{stats.paid}}</div><small>PAID</small></div>
+<div class="col"><div class="big-number">{{stats.part}}</div><small>PART PAYMENT</small></div>
+<div class="col"><div class="big-number">{{stats.unpaid}}</div><small>UNPAID</small></div>
+</div></div></div></div>
+<div class="col-lg-6"><div class="card"><div class="card-body"><h5>Expenses</h5>
+<table class="table table-sm"><tr><td>Purchase Costs</td><td class="text-end">{{stats.purchase_cost|money}}</td></tr>
+<tr><td>Transport</td><td class="text-end">{{stats.transport|money}}</td></tr>
+<tr><td>Other Expenses</td><td class="text-end">{{stats.other|money}}</td></tr>
+<tr class="fw-bold"><td>Total Expenses</td><td class="text-end">{{stats.expenses|money}}</td></tr></table>
+</div></div></div>
+</div>
+<div class="card mt-3"><div class="card-body"><h5>Recent Sales</h5>
+<div class="table-responsive"><table class="table table-hover">
+<thead><tr><th>Transaction ID</th><th>Date</th><th>Customer</th><th>KG</th><th>Sale</th><th>Paid</th></tr></thead>
+<tbody>{% for r in recent %}<tr><td><a href="{{url_for('transaction_history',transaction_id=r.transaction_id)}}">{{r.transaction_id}}</a></td><td>{{r.sale_date|pretty_date}}</td><td>{{r.name}}</td><td>{{"{:,.2f}".format(r.quantity_kg)}}</td><td>{{r.total_sale|money}}</td><td>{{r.paid|money}}</td></tr>{% else %}<tr><td colspan="6" class="text-muted">No sales recorded.</td></tr>{% endfor %}</tbody>
+</table></div></div></div>
+{% endblock %}
