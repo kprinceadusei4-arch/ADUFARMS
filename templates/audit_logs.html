@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs - ADUFARMS{% endblock %}
+{% block content %}<h2>AUDIT LOGS</h2><div class="card mt-3"><div class="card-body"><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>User</th><th>Action</th><th>Reference</th><th>Details</th></tr></thead><tbody>{% for row in rows %}<tr><td>{{ row.created_at|pretty_date }}</td><td>{{ row.username or '-' }}</td><td>{{ row.action }}</td><td>{{ row.reference or '-' }}</td><td>{{ row.details or '-' }}</td></tr>{% else %}<tr><td colspan="5">No audit activity recorded.</td></tr>{% endfor %}</tbody></table></div></div></div>{% endblock %}

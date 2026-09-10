@@ -30,10 +30,7 @@ Then open:
 http://127.0.0.1:5000
 
 ## First login
-- Username: admin
-- Password: admin123
-
-Change the default password after first login.
+Use an administrator account already provisioned for your environment. The application does not display or create a known default password.
 
 ## Database
 The SQLite database `adufarms.db` is created automatically on first run.
