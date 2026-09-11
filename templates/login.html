@@ -1,13 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Login – ADUFARMS{% endblock %}
+{% block title %}Sign in - ADUFARMS{% endblock %}
 {% block public %}
-<div class="login-wrap">
-<div class="login-card">
-<div class="text-center mb-4"><div class="login-brand-mark"><i class="bi bi-barley"></i></div><div class="brand">ADUFARMS</div><div class="text-muted">MAIZE DISTRIBUTION MANAGEMENT SYSTEM</div></div>
-<form method="post">{{ csrf_input() }}
-<label class="form-label">Username</label><input class="form-control mb-3" name="username" required autofocus>
-<label class="form-label">Password</label><input class="form-control mb-3" name="password" type="password" required>
-<button class="btn btn-primary w-100">LOGIN</button>
-</form>
-</div></div>
+<main class="login-page">
+<section class="login-visual" aria-label="ADUFARMS maize distribution"><div class="login-visual-overlay"></div><div class="login-visual-content"><div class="login-brand-lockup"><span class="login-brand-mark"><img src="{{ url_for('static', filename='images/branding/adufarms-logo.jpg') }}" alt="ADUFARMS logo"></span><span><strong>ADUFARMS</strong><small>SMART MAIZE OPERATIONS</small></span></div><div class="login-message"><span class="eyebrow"><i class="bi bi-broadcast-pin"></i> DISTRIBUTION CONTROL CENTER</span><h1>Move maize<br>with confidence.</h1><p>One clear workspace for inventory, logistics, sales and cash flow.</p></div><div class="login-visual-footer"><span><i class="bi bi-box-seam"></i> Inventory</span><span><i class="bi bi-truck"></i> Logistics</span><span><i class="bi bi-graph-up-arrow"></i> Performance</span></div></div></section>
+<section class="login-panel"><div class="login-card"><div class="login-card-header"><div class="login-brand-mark login-brand-mark-mobile"><img src="{{ url_for('static', filename='images/branding/adufarms-logo.jpg') }}" alt="ADUFARMS logo"></div><span class="eyebrow">ADUFARMS ACCESS</span><h2>Welcome back</h2><p>Sign in to continue to your operations workspace.</p></div>
+{% with messages=get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<div class="login-alert login-alert-{{ category }}" role="alert"><i class="bi bi-exclamation-circle"></i><span>{{ message }}</span></div>{% endfor %}{% endwith %}
+<form method="post" class="login-form" id="loginForm">{{ csrf_input() }}<div class="login-field"><label for="username">Username</label><div class="login-input-wrap"><i class="bi bi-person"></i><input id="username" name="username" autocomplete="username" required autofocus placeholder="Enter your username"></div></div><div class="login-field"><label for="password">Password</label><div class="login-input-wrap"><i class="bi bi-lock"></i><input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password"><button type="button" class="password-toggle" id="passwordToggle" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye"></i></button></div></div><button class="login-submit" id="loginSubmit" type="submit"><span class="login-submit-label">Sign in</span><span class="login-submit-loading" aria-hidden="true"><span class="spinner-border spinner-border-sm"></span> Signing in...</span><i class="bi bi-arrow-right"></i></button></form><p class="login-security"><i class="bi bi-shield-check"></i> Secure access to your ADUFARMS workspace</p></div><div class="login-footer">ADUFARMS <span>·</span> Maize Distribution Management System</div></section>
+</main>
 {% endblock %}

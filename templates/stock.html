@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Stock – ADUFARMS{% endblock %}
+{% block content %}
+<div class="dashboard-heading"><div><span class="eyebrow">INVENTORY</span><h2>Stock management</h2><p>Every stock change is traceable. Purchase = IN · Sale = OUT.</p></div>
+{% if depleted %}<span class="status-badge status-unpaid"><i class="bi bi-exclamation-triangle"></i> STOCK DEPLETED</span>
+{% elif low %}<span class="status-badge status-part"><i class="bi bi-exclamation-circle"></i> LOW STOCK</span>
+{% else %}<span class="status-badge status-paid"><i class="bi bi-check-circle"></i> STOCK HEALTHY</span>{% endif %}</div>
+<div class="row g-3 mb-3">
+<div class="col-6 col-xl-3"><div class="card stat-card h-100"><div class="card-body"><div class="stat-label">Current stock</div><div class="stat-value">{{ "{:,.2f}".format(available) }} KG</div><div class="stat-support">Available for dispatch</div></div></div></div>
+<div class="col-6 col-xl-3"><div class="card stat-card h-100"><div class="card-body"><div class="stat-label">Total purchased</div><div class="stat-value">{{ "{:,.2f}".format(purchased) }} KG</div><div class="stat-support">Stock in</div></div></div></div>
+<div class="col-6 col-xl-3"><div class="card stat-card h-100"><div class="card-body"><div class="stat-label">Total sold</div><div class="stat-value">{{ "{:,.2f}".format(sold) }} KG</div><div class="stat-support">Stock out</div></div></div></div>
+<div class="col-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="stat-label">Stock level</div><div class="stock-meter" style="background:var(--panel-soft)"><span style="width:{{ [((available/purchased*100),100)|min,0]|max if purchased else 0 }}%"></span></div><div class="stat-support">{{ "{:.1f}".format((available/purchased*100) if purchased else 0) }}% of purchased stock remains</div></div></div></div>
+</div>
+<div class="card"><div class="card-body"><div class="panel-title"><h5>Stock movements ({{ movements|length }})</h5><div class="table-tools mb-0"><input class="form-control form-control-sm" data-table-search="#stockTable" placeholder="Search movements..."></div></div>
+<div class="table-responsive"><table id="stockTable" class="table table-hover sortable"><thead><tr><th data-sort>Date</th><th data-sort>Type</th><th data-sort>Reference</th><th data-sort class="text-end">Quantity</th><th>By</th><th>Notes</th></tr></thead>
+<tbody>{% for m in movements %}<tr><td>{{ m.movement_date }}</td><td><span class="status-badge {% if m.movement_type=='PURCHASE' %}status-paid{% elif m.movement_type=='SALE' %}status-unpaid{% else %}status-part{% endif %}">{{ m.movement_type }}</span></td><td>{{ m.reference }}</td><td class="text-end">{% if m.quantity_kg>0 %}+{% endif %}{{ "{:,.2f}".format(m.quantity_kg) }} KG</td><td>{{ m.created_by }}</td><td class="text-muted">{{ m.notes or '-' }}</td></tr>{% else %}<tr><td colspan="6"><div class="empty-state"><i class="bi bi-box-seam"></i>No stock movements yet.</div></td></tr>{% endfor %}</tbody></table></div>
+<div class="table-pagination d-flex justify-content-between align-items-center mt-2"><small class="text-muted" data-page-info></small><div class="btn-group btn-group-sm"><button class="btn btn-outline-secondary" data-page-prev>Prev</button><button class="btn btn-outline-secondary" data-page-next>Next</button></div></div>
+</div></div>
+{% endblock %}

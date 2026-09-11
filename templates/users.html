@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Users – ADUFARMS{% endblock %}
 {% block content %}
-<h2>USER MANAGEMENT</h2>
-<div class="card my-3"><div class="card-body"><form method="post" class="row g-3">
+<h2 id="roles">USER MANAGEMENT</h2>
+<div class="card my-3"><div class="card-body"><form method="post" class="row g-3">{{ csrf_input() }}
 <div class="col-md-3"><label class="form-label">Username</label><input name="username" class="form-control" required></div>
 <div class="col-md-3"><label class="form-label">Full Name</label><input name="full_name" class="form-control" required></div>
 <div class="col-md-3"><label class="form-label">Password</label><input name="password" type="password" class="form-control" required></div>

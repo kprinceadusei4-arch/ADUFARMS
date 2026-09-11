@@ -27,11 +27,12 @@
 </form>
 {% elif kind == 'payment' %}
 <form method="post" class="row g-3" data-confirm="Are you sure you want to update this payment?">
-<div class="col-md-3"><label class="form-label">Customer Transaction ID</label><input value="{{record.transaction_id}}" class="form-control" disabled></div>
+<div class="col-md-3"><label class="form-label">Customer Transaction ID <span class="required-mark">*</span></label><input value="{{record.transaction_id}}" class="form-control" disabled></div>
 <div class="col-md-2"><label class="form-label">Payment Date</label><input type="date" name="payment_date" value="{{record.payment_date}}" class="form-control" required></div>
 <div class="col-md-2"><label class="form-label">Amount Paid</label><input type="number" min="0.01" step="0.01" name="amount" value="{{record.amount}}" class="form-control" required></div>
 <div class="col-md-2"><label class="form-label">Payment Method</label><select name="payment_method" class="form-select" required>{% for method in ['Cash','Mobile Money','Bank Transfer','Cheque','Other'] %}<option {% if record.payment_method == method %}selected{% endif %}>{{method}}</option>{% endfor %}</select></div>
 <div class="col-md-3"><label class="form-label">Payment Reference</label><input name="payment_reference" value="{{record.payment_reference or ''}}" class="form-control"></div>
+<div class="col-md-3"><label class="form-label">Notes</label><input name="notes" value="{{record.notes or ''}}" class="form-control"></div>
 <div class="col-12"><button class="btn btn-primary">UPDATE PAYMENT</button> <a class="btn btn-outline-secondary" href="{{url_for('payments')}}">CANCEL</a></div>
 </form>
 {% elif kind == 'user' %}

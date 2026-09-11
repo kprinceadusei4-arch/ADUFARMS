@@ -1,18 +1,251 @@
 {% extends "base.html" %}
 {% block title %}Invoice – ADUFARMS{% endblock %}
 {% block content %}
-<h2>INVOICE</h2>
-<form method="get" class="row g-2 my-3"><div class="col-md-5"><input name="transaction_id" value="{{info.transaction_id if info else request.args.get('transaction_id','')}}" class="form-control" placeholder="Enter Customer Transaction ID / Invoice Number"></div><div class="col-auto"><button class="btn btn-primary">LOAD INVOICE</button></div></form>
-{% if info %}
-<div class="invoice-paper">
-<div class="d-flex justify-content-between"><div><h1>ADUFARMS</h1><div>MAIZE DISTRIBUTION</div></div><div class="text-end"><b>INVOICE</b><br>{{info.transaction_id}}<br>{{info.sale_date|pretty_date}}</div></div>
-<hr>
-<div class="row"><div class="col-6"><b>Customer</b><br>{{info.customer_name}}<br>{{info.customer_phone or "-"}}</div></div>
-<table class="table mt-4"><thead><tr><th>Description</th><th class="text-end">Quantity (KG)</th><th class="text-end">Price/KG</th><th class="text-end">Amount</th></tr></thead>
-<tbody><tr><td>Maize</td><td class="text-end">{{"{:,.2f}".format(info.quantity_kg)}}</td><td class="text-end">{{info.selling_price_kg|money}}</td><td class="text-end">{{info.total_sale|money}}</td></tr></tbody></table>
-<div class="row justify-content-end"><div class="col-md-5"><table class="table"><tr><th>TOTAL</th><td class="text-end">{{info.total_sale|money}}</td></tr><tr><th>TOTAL PAID</th><td class="text-end">{{info.total_paid|money}}</td></tr><tr><th>BALANCE</th><td class="text-end">{{info.balance|money}}</td></tr><tr><th>PAYMENT STATUS</th><td class="text-end"><b>{{info.status}}</b></td></tr></table></div></div>
-<div class="text-center mt-5">Thank you for doing business with ADUFARMS.</div>
-<div class="text-center mt-3 no-print"><a class="btn btn-dark" href="{{url_for('invoice_pdf',transaction_id=info.transaction_id)}}">EXPORT PDF</a><button onclick="window.print()" class="btn btn-outline-primary">PRINT INVOICE</button></div>
+<div class="invoice-page {% if print_view %}invoice-print-view{% endif %}">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 no-print">
+    <div>
+      <span class="eyebrow"><i class="bi bi-receipt"></i> ADUFARMS INVOICE SYSTEM</span>
+      <h2 class="mb-0">Invoice Center</h2>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('invoice') }}"><i class="bi bi-arrow-left"></i> Back to invoices</a>
+    </div>
+  </div>
+
+  <form method="get" class="row g-2 mb-4 invoice-search-panel no-print">
+    <div class="col-lg-2 col-md-6">
+      <label class="form-label small mb-1">Sales ID</label>
+      <input name="transaction_id" value="{{ info.sales_id if info else request.args.get('transaction_id','') }}" class="form-control" placeholder="ADU-SAL-YYYYMMDD-0001">
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <label class="form-label small mb-1">Customer</label>
+      <input name="customer" value="{{ customer_query }}" class="form-control" placeholder="Customer or company">
+    </div>
+    <div class="col-lg-2 col-md-6">
+      <label class="form-label small mb-1">Phone</label>
+      <input name="phone" value="{{ phone_query }}" class="form-control" placeholder="Phone number">
+    </div>
+    <div class="col-lg-2 col-md-6">
+      <label class="form-label small mb-1">Date</label>
+      <input name="invoice_date" value="{{ invoice_date }}" type="date" class="form-control">
+    </div>
+    <div class="col-lg-1 col-md-6">
+      <label class="form-label small mb-1">Status</label>
+      <select name="status" class="form-select">
+        <option value="">All</option>
+        <option value="PAID" {% if status_query == 'PAID' %}selected{% endif %}>PAID</option>
+        <option value="PART PAYMENT" {% if status_query == 'PART PAYMENT' %}selected{% endif %}>PART PAYMENT</option>
+        <option value="UNPAID" {% if status_query == 'UNPAID' %}selected{% endif %}>UNPAID</option>
+        <option value="OVERPAID" {% if status_query == 'OVERPAID' %}selected{% endif %}>OVERPAID</option>
+      </select>
+    </div>
+    <div class="col-auto align-self-end">
+      <button class="btn btn-primary" type="submit"><i class="bi bi-search me-1"></i>Search</button>
+    </div>
+  </form>
+
+  {% if invoice_matches %}
+  <div class="card mb-4 no-print">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Matching invoices</h5>
+        <span class="text-muted small">{{ invoice_matches|length }} result(s)</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Sales ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th class="text-end">Grand Total</th>
+              <th class="text-end">Amount Paid</th>
+              <th class="text-end">Balance</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for match in invoice_matches %}
+            {% set match_balance = match.total_sale - match.total_paid %}
+            {% set match_status = 'OVERPAID' if match.total_paid > match.total_sale + 0.005 else ('PAID' if match_balance <= 0.005 else ('PART PAYMENT' if match.total_paid > 0 else 'UNPAID')) %}
+            <tr>
+              <td><strong>{{ match.sales_id }}</strong><br><small class="text-muted">{{ match.transaction_id }}</small></td>
+              <td>{{ match.sale_date|pretty_date }}</td>
+              <td>{{ match.customer_name }}</td>
+              <td>{{ match.customer_phone or '-' }}</td>
+              <td class="text-end">{{ match.total_sale|money }}</td>
+              <td class="text-end">{{ match.total_paid|money }}</td>
+              <td class="text-end">{{ (match_balance if match_balance > 0 else 0)|money }}</td>
+              <td><span class="status-badge status-{% if match_status == 'PAID' %}paid{% elif match_status == 'PART PAYMENT' %}part{% elif match_status == 'OVERPAID' %}overpaid{% else %}unpaid{% endif %}">{{ match_status }}</span></td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a class="btn btn-outline-primary" href="{{ url_for('invoice', transaction_id=match.sales_id) }}">View</a>
+                  <a class="btn btn-outline-secondary" href="{{ url_for('invoice', transaction_id=match.sales_id) }}#print">Print</a>
+                  <a class="btn btn-outline-dark" href="{{ url_for('invoice_pdf', transaction_id=match.sales_id) }}">PDF</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if info %}
+  <div class="invoice-paper {% if print_view %}print-mode{% endif %}">
+    <div class="invoice-watermark" aria-hidden="true"><img src="{{ url_for('static', filename='images/branding/adufarms-logo.jpg') }}" alt=""></div>
+
+    <div class="invoice-header">
+      <div class="document-brand">
+        <img src="{{ url_for('static', filename='images/branding/adufarms-logo.jpg') }}" alt="ADUFARMS logo">
+        <div>
+          <h1>ADUFARMS</h1>
+          <div>Maize Supply &amp; Delivery Services</div>
+        </div>
+      </div>
+      <div class="invoice-meta text-end">
+        <div class="meta-title">INVOICE</div>
+        <div>Invoice No: {{ info.invoice_number }}</div>
+        <div>Sales ID: <strong>{{ info.sales_id }}</strong></div>
+        <div>Date: {{ info.sale_date|pretty_date }}</div>
+        <div>Issued by: {{ info.staff_user }}</div>
+        <div>Customer: {{ info.customer_name }}</div>
+      </div>
+    </div>
+
+    <div class="invoice-header-row">
+      <div class="customer-box">
+        <div class="label">Customer</div>
+        <div><strong>{{ info.customer_name }}</strong></div>
+        <div>{{ info.customer_phone or 'No phone recorded' }}</div>
+        <div>{{ info.customer_address or info.customer_location or 'No delivery location recorded' }}</div>
+      </div>
+      <div class="customer-box text-end">
+        <div class="label">Payment Status</div>
+        <div><span class="status-badge status-{% if info.status == 'PAID' %}paid{% elif info.status in ['PART PAYMENT', 'PARTIALLY PAID'] %}part{% elif info.status == 'OVERPAID' %}overpaid{% else %}unpaid{% endif %}">{{ info.status }}</span></div>
+      </div>
+    </div>
+
+    <div class="invoice-table-wrap">
+      <table class="invoice-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th class="text-end">Quantity (KG)</th>
+            <th class="text-end">Unit Price (GHS)</th>
+            <th class="text-end">Total (GHS)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Maize Supply</td>
+            <td class="text-end">{{ '{:,.2f}'.format(info.quantity_kg) }}</td>
+            <td class="text-end">{{ info.selling_price_kg|money }}</td>
+            <td class="text-end">{{ info.total_sale|money }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="totals-box">
+      <table>
+        <tr><th>Subtotal (GHS)</th><td>{{ info.total_sale|money }}</td></tr>
+        <tr><th>Delivery Fee (GHS)</th><td>0.00</td></tr>
+        <tr><th>Grand Total (GHS)</th><td>{{ info.total_sale|money }}</td></tr>
+        <tr><th>Amount Paid (GHS)</th><td>{{ info.total_paid|money }}</td></tr>
+        <tr><th>Outstanding Balance (GHS)</th><td>{{ info.balance|money }}</td></tr>
+        <tr><th>Payment Status</th><td>{{ info.status }}</td></tr>
+      </table>
+    </div>
+
+    <div class="payment-block">
+      <div class="payment-row"><strong>PAYMENT HISTORY:</strong></div>
+      {% for payment in payments %}<div class="payment-row">{{ payment.payment_id or 'Payment #' ~ payment.id }} | {{ payment.payment_date|pretty_date }} | {{ payment.payment_method }} | {{ payment.amount|money }}</div>{% else %}<div class="payment-row">No payments recorded.</div>{% endfor %}
+      <div class="payment-row"><strong>PAYMENT METHOD:</strong> MOBILE MONEY / BANK TRANSFER</div>
+      <div class="payment-row"><strong>MOBILE MONEY DETAILS:</strong> Number: 054 734 6840 | Momo Name: Agnes Adomah</div>
+      <div class="payment-row"><strong>BANK DETAILS:</strong> Account No: 0070910682301 | Account Name: Kyeremeh Bismark | Name of Bank: Republic Bank (Legon Branch)</div>
+    </div>
+
+    <div class="signature-line">
+      <span>Authorized Signature:</span>
+      <span>____________________________</span>
+    </div>
+
+    <div class="invoice-footer">
+      <strong>Thank you for doing business with ADUFARMS.</strong>
+      <span>Payment reference: {{ payments[-1].payment_reference if payments and payments[-1].payment_reference else 'Not provided' }}</span>
+      <span>Questions about this invoice? Please contact the ADUFARMS operations team.</span>
+    </div>
+
+    <div class="invoice-actions no-print">
+      <a class="btn btn-dark" href="{{ url_for('invoice_pdf', transaction_id=info.sales_id) }}">Export PDF</a>
+      <a class="btn btn-outline-primary" href="{{ url_for('invoice', transaction_id=info.sales_id) }}?print=1">Print Invoice</a>
+      <button class="btn btn-outline-secondary" type="button" id="printInvoiceButton">Print</button>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not info and not invoice_matches and not invoice_history %}
+  <div class="card no-print">
+    <div class="card-body text-center py-5">
+      <h5 class="mb-2">No invoice found</h5>
+      <p class="mb-0 text-muted">Search by invoice number, customer name, phone number, date, or payment status.</p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if invoice_history and not info %}
+  <div class="card no-print">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Invoice history</h5>
+        <span class="text-muted small">Recent transactions</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Sales ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Grand Total</th>
+              <th>Amount Paid</th>
+              <th>Balance</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in invoice_history %}
+            {% set balance = row.total_sale - row.total_paid %}
+            <tr>
+              <td><strong>{{ row.sales_id }}</strong><br><small class="text-muted">{{ row.transaction_id }}</small></td>
+              <td>{{ row.sale_date|pretty_date }}</td>
+              <td>{{ row.customer_name }}</td>
+              <td>{{ row.total_sale|money }}</td>
+              <td>{{ row.total_paid|money }}</td>
+              <td>{{ (balance if balance > 0 else 0)|money }}</td>
+              <td><span class="status-badge status-{% if row.status == 'PAID' %}paid{% elif row.status == 'PART PAYMENT' %}part{% elif row.status == 'OVERPAID' %}overpaid{% else %}unpaid{% endif %}">{{ row.status }}</span></td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a class="btn btn-outline-primary" href="{{ url_for('invoice', transaction_id=row.sales_id) }}">View</a>
+                  <a class="btn btn-outline-secondary" href="{{ url_for('invoice_pdf', transaction_id=row.sales_id) }}">PDF</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
-{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/invoice.js') }}"></script>
 {% endblock %}

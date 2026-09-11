@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Transaction History – ADUFARMS{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between"><h2>TRANSACTION HISTORY</h2><a class="btn btn-dark" href="{{url_for('invoice',transaction_id=info.transaction_id)}}">VIEW INVOICE</a></div>
+<div class="d-flex justify-content-between"><h2>TRANSACTION HISTORY</h2><a class="btn btn-dark" href="{{url_for('invoice',transaction_id=info.sales_id)}}">VIEW INVOICE</a></div>
 <div class="card my-3"><div class="card-body"><div class="row">
-<div class="col-md-3"><b>Transaction / Invoice</b><br>{{info.transaction_id}}</div>
+<div class="col-md-3"><b>Sales ID</b><br><strong>{{info.sales_id}}</strong><br><small class="text-muted">Invoice {{info.invoice_number}}</small></div>
 <div class="col-md-3"><b>Customer</b><br>{{info.customer_name}}<br>{{info.customer_phone or "-"}}</div>
 <div class="col-md-2"><b>Date</b><br>{{info.sale_date|pretty_date}}</div>
 <div class="col-md-2"><b>Quantity</b><br>{{"{:,.2f}".format(info.quantity_kg)}} KG</div>
 <div class="col-md-2"><b>Sale</b><br>{{info.total_sale|money}}</div>
 </div></div></div>
 <div class="row g-3"><div class="col-md-4"><div class="card"><div class="card-body"><b>Total Paid</b><h3>{{info.total_paid|money}}</h3><b>Balance</b><h3>{{info.balance|money}}</h3><b>Status</b><h4>{{info.status}}</h4></div></div></div>
-<div class="col-md-8"><div class="card"><div class="card-body"><h5>Payments</h5><table class="table"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th></tr></thead><tbody>{% for p in payments %}<tr><td>{{p.payment_date|pretty_date}}</td><td>{{p.amount|money}}</td><td>{{p.payment_method}}</td><td>{{p.payment_reference}}</td></tr>{% else %}<tr><td colspan="4">No payments.</td></tr>{% endfor %}</tbody></table></div></div></div></div>
+<div class="col-md-8"><div class="card"><div class="card-body"><h5>Payments</h5><table class="table"><thead><tr><th>Payment ID</th><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th></tr></thead><tbody>{% for p in payments %}<tr><td>{{p.payment_id}}</td><td>{{p.payment_date|pretty_date}}</td><td>{{p.amount|money}}</td><td>{{p.payment_method}}</td><td>{{p.payment_reference}}</td></tr>{% else %}<tr><td colspan="5">No payments.</td></tr>{% endfor %}</tbody></table></div></div></div></div>
 {% endblock %}

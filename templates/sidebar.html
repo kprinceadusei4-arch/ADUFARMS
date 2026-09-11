@@ -1,0 +1,64 @@
+<aside class="app-sidebar" id="appSidebar" aria-label="Application sidebar">
+  <div class="sidebar-brand-row">
+    <a class="brand-lockup" href="{{ url_for('dashboard') }}" aria-label="ADUFARMS dashboard">
+      <span class="brand-mark"><img src="{{ url_for('static', filename='images/branding/adufarms-logo.jpg') }}" alt="" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/maize/corn.jpg') }}';"></span>
+      <span class="brand-copy"><strong>ADUFARMS</strong><span>MAIZE TRADING &amp;<br>DISTRIBUTION</span></span>
+    </a>
+    <button class="sidebar-collapse" id="sidebarCollapse" type="button" aria-label="Collapse sidebar" title="Collapse sidebar">
+      <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div class="sidebar-actions">
+    <button class="new-transaction-trigger" id="newTransactionToggle" type="button" title="New Transaction" aria-expanded="false" aria-controls="newTransactionPanel">
+      <i class="bi bi-plus-lg" aria-hidden="true"></i><span class="nav-label">New Transaction</span>
+    </button>
+    <div class="sidebar-popover new-transaction-panel" id="newTransactionPanel">
+      <a href="{{ url_for('purchases') }}#new"><i class="bi bi-box-seam" aria-hidden="true"></i> New Purchase</a>
+      <a href="{{ url_for('customers') }}#new"><i class="bi bi-person-plus" aria-hidden="true"></i> New Customer</a>
+      <a href="{{ url_for('sales') }}#new"><i class="bi bi-cart-plus" aria-hidden="true"></i> New Sale</a>
+      <a href="{{ url_for('payments') }}#new"><i class="bi bi-wallet2" aria-hidden="true"></i> Record Payment</a>
+      <a href="{{ url_for('invoice') }}"><i class="bi bi-receipt" aria-hidden="true"></i> Create Invoice</a>
+    </div>
+  </div>
+
+  <div class="sidebar-section-label">Workspace</div>
+  <nav class="sidebar-nav" aria-label="Main navigation">
+    {% set nav_items = [('dashboard','Dashboard','speedometer2'),('purchases','Purchases','box-seam'),('customers','Customers & Sales','people'),('payments','Payments','wallet2'),('invoice','Invoices','receipt'),('search','Search','search'),('reports','Reports','bar-chart-line'),('assistant','AI Assistant','stars')] %}
+    {% for endpoint, label, icon in nav_items %}
+      {% set nav_active = request.endpoint == endpoint or (endpoint == 'customers' and request.endpoint == 'sales') %}
+      <a class="{% if nav_active %}active{% endif %}" href="{{ url_for(endpoint) }}" title="{{ label }}"{% if nav_active %} aria-current="page"{% endif %}>
+        <i class="bi bi-{{ icon }}" aria-hidden="true"></i><span class="nav-label">{{ label }}</span>
+      </a>
+    {% endfor %}
+  </nav>
+
+  {% if session.get('role') == 'ADMIN' %}
+    <div class="sidebar-section-label administration-label">Administration</div>
+    <nav class="sidebar-nav" aria-label="Administration navigation">
+      {% set admin_items = [('users','Users','people','users'),('users','Roles & Permissions','person-gear','roles'),('audit_logs','Transaction Reversal','arrow-counterclockwise','reversal'),('deleted_records','Recycle Bin','archive','recycle'),('profile','System Settings','sliders2','settings'),('audit_logs','Audit Log','shield-check','audit')] %}
+      {% for endpoint, label, icon, anchor in admin_items %}
+        {% set admin_active = (anchor == 'users' and request.endpoint == 'users') or (anchor == 'audit' and request.endpoint == 'audit_logs') %}
+        <a class="{% if admin_active %}active{% endif %}" href="{% if anchor == 'roles' %}{{ url_for('users') }}#roles{% elif anchor == 'reversal' %}{{ url_for('audit_logs') }}#reversals{% elif anchor == 'settings' %}{{ url_for('profile') }}#security{% else %}{{ url_for(endpoint) }}{% endif %}" title="{{ label }}"{% if admin_active %} aria-current="page"{% endif %}>
+          <i class="bi bi-{{ icon }}" aria-hidden="true"></i><span class="nav-label">{{ label }}</span>
+        </a>
+      {% endfor %}
+    </nav>
+  {% endif %}
+
+  <div class="sidebar-account">
+    <div class="sidebar-profile-menu">
+      <button class="sidebar-profile-card" id="sidebarProfileToggle" type="button" title="Open profile menu" aria-label="Open profile menu" aria-expanded="false" aria-controls="sidebarProfilePanel">
+        <img class="avatar" src="{{ url_for('static', filename='images/users/' + (session.get('profile_image') or 'team.jpg')) }}" alt="">
+        <span class="sidebar-profile-copy"><strong>{{ session.get('full_name') or session.get('username') }}</strong><small>{{ session.get('role')|title }}</small></span>
+        <i class="bi bi-three-dots sidebar-profile-chevron" aria-hidden="true"></i>
+      </button>
+      <div class="sidebar-popover sidebar-profile-panel" id="sidebarProfilePanel">
+        <a href="{{ url_for('profile') }}"><i class="bi bi-person-circle" aria-hidden="true"></i> Profile</a>
+        <a href="{{ url_for('profile') }}#security"><i class="bi bi-sliders2" aria-hidden="true"></i> Account Settings</a>
+        <a href="{{ url_for('logout') }}" class="menu-danger"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Logout</a>
+      </div>
+    </div>
+  </div>
+</aside>
+<div class="sidebar-scrim" id="sidebarScrim"></div>

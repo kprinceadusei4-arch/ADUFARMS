@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}AI Assistant - ADUFARMS{% endblock %}
+{% block content %}
+<section class="assistant-page">
+  <div class="dashboard-heading"><div><span class="eyebrow"><i class="bi bi-stars"></i> VERIFIED BUSINESS ASSISTANT</span><h2>Ask ADUFARMS</h2><p>Answers are calculated from the current database. No unverified financial figures are generated.</p></div></div>
+  <div class="card assistant-card"><div class="card-body">
+    <form method="get" class="assistant-form"><label class="form-label" for="assistantQuestion">Business question</label><div class="input-group"><input id="assistantQuestion" name="question" value="{{ question }}" class="form-control" placeholder="How much maize is currently available?" required><button class="btn btn-primary" type="submit"><i class="bi bi-send me-1"></i>Ask</button></div></form>
+    <div class="assistant-suggestions"><span>Try:</span><a href="{{ url_for('assistant', question='How much maize is currently available?') }}">Current stock</a><a href="{{ url_for('assistant', question='Who owes ADUFARMS the most?') }}">Outstanding balances</a><a href="{{ url_for('assistant', question="What were our sales today?") }}">Today's activity</a></div>
+  </div></div>
+  {% if result %}<div class="card assistant-result mt-3"><div class="card-body"><span class="eyebrow">DATABASE FACT</span><h3>{{ result.title }}</h3><p>{{ result.answer }}</p>{% if result.facts %}<ul>{% for fact in result.facts %}<li>{{ fact }}</li>{% endfor %}</ul>{% endif %}</div></div>{% endif %}
+</section>
+{% endblock %}

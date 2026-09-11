@@ -2,5 +2,7 @@
 __pycache__/
 *.pyc
 adufarms.db
+backups/*.db
+!backups/.gitkeep
 exports/invoices/*
 .env

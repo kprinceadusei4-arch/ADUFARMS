@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Database Backup – ADUFARMS{% endblock %}
+{% block content %}
+<h2>DATABASE BACKUP (ADMIN ONLY)</h2>
+<p class="text-muted">Timestamped backups are stored in <code>backups/</code> outside staff-accessible areas. A safety backup is created before every restore and migration. Backup files are never served directly.</p>
+<div class="card mb-3"><div class="card-body">
+<form method="post" action="{{ url_for('admin_backup') }}">{{ csrf_input() }}
+<button class="btn btn-primary" type="submit"><i class="bi bi-database"></i> CREATE MANUAL BACKUP</button>
+</form>
+</div></div>
+<div class="card"><div class="card-body">
+<h5>Available backups ({{ backups|length }})</h5>
+<div class="table-responsive"><table class="table">
+<thead><tr><th>Filename</th><th>Created</th><th>Size (bytes)</th><th>Action</th></tr></thead>
+<tbody>
+{% for b in backups %}
+<tr><td>{{ b.name }}</td><td>{{ b.mtime }}</td><td>{{ b.size }}</td>
+<td><form method="post" action="{{ url_for('admin_restore') }}" onsubmit="return confirm('Restore {{ b.name }}? A safety backup of the current database will be kept.');">{{ csrf_input() }}<input type="hidden" name="backup_name" value="{{ b.name }}"><button class="btn btn-sm btn-warning" type="submit">RESTORE</button></form></td></tr>
+{% else %}<tr><td colspan="4">No backups yet.</td></tr>{% endfor %}
+</tbody></table></div>
+</div></div>
+{% endblock %}

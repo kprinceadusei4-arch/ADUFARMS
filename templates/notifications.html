@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Notifications – ADUFARMS{% endblock %}
+{% block content %}
+<div class="dashboard-heading"><div><span class="eyebrow">ALERTS</span><h2>Notification center ({{ items|length }})</h2><p>Real system data: stock, balances, recent activity. Current stock: <strong>{{ "{:,.2f}".format(stock) }} KG</strong>.</p></div><a class="btn btn-outline-secondary btn-sm" href="{{ url_for('notifications', mark_read=1) }}"><i class="bi bi-check2-all"></i> Mark all as read</a></div>
+<div class="card"><div class="card-body">
+{% for n in items %}
+<div class="d-flex gap-3 align-items-start border-bottom py-3"><span class="notification-icon notification-{{ n.kind }}"><i class="bi bi-{{ n.icon }}"></i></span><div class="flex-grow-1"><strong>{{ n.title }}</strong><div class="text-muted small">{{ n.body }}</div><small class="text-muted">{{ n.time }}</small></div><span class="status-badge {% if n.kind=='danger' %}status-unpaid{% elif n.kind=='warning' %}status-part{% else %}status-pending{% endif %}">{{ n.kind|upper }}</span></div>
+{% else %}<div class="empty-state"><i class="bi bi-bell"></i>All caught up. No notifications.</div>{% endfor %}
+</div></div>
+{% endblock %}
